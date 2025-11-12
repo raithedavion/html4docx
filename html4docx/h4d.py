@@ -170,7 +170,7 @@ class HtmlToDocx(HTMLParser):
             )
             return False
 
-    def apply_style_to_run(self, run, style_name):
+    def apply_style_to_run(self, style_name):
         """
         Apply a Word character style to a run by style name.
 
@@ -182,7 +182,7 @@ class HtmlToDocx(HTMLParser):
             bool: True if style was applied successfully, False otherwise
         """
         try:
-            run.style = style_name
+            self.run.style = style_name
             return True
         except KeyError:
             print(f"Warning: Character style '{style_name}' not found in document.")
@@ -229,7 +229,7 @@ class HtmlToDocx(HTMLParser):
 
         return normal_styles, important_styles
 
-    def apply_inline_styles_to_run(self, run, styles_dict):
+    def apply_inline_styles_to_run(self, styles_dict):
         """
         Apply inline CSS styles to a run.
 
@@ -716,7 +716,6 @@ class HtmlToDocx(HTMLParser):
                     self.run.add_picture(image, width, height)
                 else:
                     self.add_image_to_cell(self.doc, image, width, height)
-                image.close()
             except FileNotFoundError:
                 image = None
 
@@ -985,32 +984,9 @@ class HtmlToDocx(HTMLParser):
                 self.run = self.paragraph.add_run()
                 self.run.add_break()
             return
-        elif tag == "code":
-            custom_style = self.get_word_style_for_element(tag, current_attrs)
-            if custom_style:
-                self.pending_character_style = custom_style
-            if "style" in current_attrs:
-                normal_styles, important_styles = self.parse_inline_styles(
-                    current_attrs["style"]
-                )
-                if normal_styles:
-                    self.pending_inline_styles = normal_styles
-                if important_styles:
-                    self.pending_important_styles = important_styles
 
         self.tags[tag] = current_attrs
-
-        # Control custom_style based on the Options.  Default is True on both.
-        custom_style = (
-            self.get_word_style_for_element(tag, current_attrs)
-            if (self.use_styles or self.use_tag_overrides)
-            else None
-        )
-
-        if custom_style:
-            valid_style = utils.check_style_exists(self.doc, custom_style)
-            if not valid_style:
-                custom_style = None
+        custom_style = self.get_word_style_for_element(tag, current_attrs)
 
         if tag in ["p", "pre"]:
             if not self.in_li:
