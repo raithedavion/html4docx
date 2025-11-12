@@ -1319,6 +1319,7 @@ and blank lines.
 
         doc = Document()
         parser = HtmlToDocx(style_map=style_map)
+        parser.options["style-map"] = True
         parser.add_html_to_document(html, self.document)
         parser.add_html_to_document(html, doc)
 
@@ -1339,6 +1340,7 @@ and blank lines.
 
         doc = Document()
         parser = HtmlToDocx(style_map=style_map)
+        parser.options["style-map"] = True
         parser.add_html_to_document(html, self.document)
         parser.add_html_to_document(html, doc)
 
@@ -1358,6 +1360,7 @@ and blank lines.
 
         doc = Document()
         parser = HtmlToDocx(style_map=style_map, default_paragraph_style=None)
+        parser.options["style-map"] = True
         parser.add_html_to_document(html, self.document)
         parser.add_html_to_document(html, doc)
 
@@ -1375,6 +1378,7 @@ and blank lines.
 
         doc = Document()
         parser = HtmlToDocx(tag_style_overrides=tag_overrides)
+        parser.options["tag-override"] = True
         parser.add_html_to_document(html, self.document)
         parser.add_html_to_document(html, doc)
 
@@ -1393,6 +1397,8 @@ and blank lines.
 
         doc = Document()
         parser = HtmlToDocx(style_map=style_map, tag_style_overrides=tag_overrides)
+        parser.options["style-map"] = True
+        parser.options["tag-override"] = True
         parser.add_html_to_document(html, self.document)
         parser.add_html_to_document(html, doc)
 
@@ -1559,6 +1565,7 @@ and blank lines.
 
         doc = Document()
         parser = HtmlToDocx(style_map=style_map)
+        parser.options["style-map"] = True
         parser.add_html_to_document(html, self.document)
         parser.add_html_to_document(html, doc)
 
@@ -1584,6 +1591,7 @@ and blank lines.
 
         doc = Document()
         parser = HtmlToDocx(style_map=style_map)
+        parser.options["style-map"] = True
         parser.add_html_to_document(html, self.document)
         parser.add_html_to_document(html, doc)
 
@@ -1656,6 +1664,7 @@ and blank lines.
         html = '<p class="custom">Test</p>'
 
         parser = HtmlToDocx(style_map=style_map)
+        parser.options["style-map"] = True
 
         # Should not raise exception
         try:
@@ -1673,6 +1682,7 @@ and blank lines.
 
         doc = Document()
         parser = HtmlToDocx(style_map={})
+        parser.options["style-map"] = True
         parser.add_html_to_document(html, self.document)
         parser.add_html_to_document(html, doc)
 
@@ -1686,6 +1696,7 @@ and blank lines.
 
         doc = Document()
         parser = HtmlToDocx(style_map=None)
+        parser.options["style-map"] = True
         parser.add_html_to_document(html, self.document)
         parser.add_html_to_document(html, doc)
 
