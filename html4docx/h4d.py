@@ -244,7 +244,7 @@ class HtmlToDocx(HTMLParser):
         if "color" in styles_dict:
             try:
                 colors = utils.parse_color(styles_dict["color"])
-                run.font.color.rgb = RGBColor(*colors)
+                self.run.font.color.rgb = RGBColor(*colors)
             except:
                 pass
 
@@ -253,7 +253,7 @@ class HtmlToDocx(HTMLParser):
             try:
                 font_size = utils.adapt_font_size(styles_dict["font-size"])
                 if font_size:
-                    run.font.size = utils.unit_converter(font_size)
+                    self.run.font.size = utils.unit_converter(font_size)
             except:
                 pass
 
@@ -261,32 +261,32 @@ class HtmlToDocx(HTMLParser):
         if "font-weight" in styles_dict:
             weight = styles_dict["font-weight"].lower()
             if weight in ["bold", "bolder", "700", "800", "900"]:
-                run.font.bold = True
+                self.run.font.bold = True
             elif weight in ["normal", "400"]:
-                run.font.bold = False
+                self.run.font.bold = False
 
         # Apply font-style (italic)
         if "font-style" in styles_dict:
             style = styles_dict["font-style"].lower()
             if style == "italic" or style == "oblique":
-                run.font.italic = True
+                self.run.font.italic = True
             elif style == "normal":
-                run.font.italic = False
+                self.run.font.italic = False
 
         # Apply text-decoration
         if "text-decoration" in styles_dict:
             decoration = styles_dict["text-decoration"].lower()
             if "underline" in decoration:
-                run.font.underline = True
+                self.run.font.underline = True
             if "line-through" in decoration:
-                run.font.strike = True
+                self.run.font.strike = True
 
         # Apply font-family
         if "font-family" in styles_dict:
             font_family = (
                 styles_dict["font-family"].split(",")[0].strip().strip('"').strip("'")
             )
-            run.font.name = font_family
+            self.run.font.name = font_family
 
     def get_cell_html(self, soup):
         """
