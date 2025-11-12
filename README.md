@@ -99,12 +99,14 @@ All table styles we support can be found [here](https://python-docx.readthedocs.
 
 #### Options
 
-There is 4 options that you can use to personalize your execution:
+There is 6 options that you can use to personalize your execution:
 
 - Disable Images: Ignore all images.
 - Disable Tables: If you do it, it will render just the raw tables content
 - Disable Styles: Ignore all CSS styles.
 - Disable Fix-HTML: Use BeautifulSoap to Fix possible HTML missing tags.
+- Disable Style-Map: Ignore style mappings
+- Disable Tag-Override: Ignore Tag Overrides
 
 This is how you could disable them if you want **(By default, is all True)**:
 
@@ -182,6 +184,10 @@ Supported CSS properties:
 - font-style (italic)
 - text-decoration (underline, line-through)
 - font-family
+- text-align
+- background-color
+- Border (for tables)
+- Verticial Align (for tables)
 
 ### !important Flag Support
 
@@ -251,6 +257,10 @@ My goal in forking and fixing/updating this package was to complete my current t
 
 **New Features**
 
+- Support for class to word style mapping | [raithedavion](https://github.com/raithedavion) from [PR](https://github.com/dfop02/html4docx/pull/44)
+- Support for overriding html tag to word style mapping | [raithedavion](https://github.com/raithedavion) from [PR](https://github.com/dfop02/html4docx/pull/44)
+- Support for !important style tags to take precedence | [raithedavion](https://github.com/raithedavion) from [PR](https://github.com/dfop02/html4docx/pull/44)
+- Support for default word style to use in new documents (default 'Normal') | [raithedavion](https://github.com/raithedavion) from [PR](https://github.com/dfop02/html4docx/pull/44)
 - Add Witdh/Height style to images | [maifeeulasad](https://github.com/maifeeulasad) from [PR](https://github.com/pqzx/html2docx/pull/29)
 - Support px, cm, pt, in, rem, em, mm, pc and % units for styles | [Dfop02](https://github.com/dfop02)
 - Improve performance on large tables | [dashingdove](https://github.com/dashingdove) from [PR](https://github.com/pqzx/html2docx/pull/58)

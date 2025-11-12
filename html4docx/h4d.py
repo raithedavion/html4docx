@@ -60,6 +60,10 @@ class HtmlToDocx(HTMLParser):
         self.list_restart_counter = 0
         self.current_ol_num_id = None
         self._list_num_ids = {}
+
+        # NEW: Set style map & tag overrides according to options
+        self.use_styles = self.options["style-map"]
+        self.use_tag_overrides = self.options["tag-override"]
         # NEW: Style tracking variables
         self.pending_div_style = None
         self.pending_character_style = None
@@ -163,7 +167,7 @@ class HtmlToDocx(HTMLParser):
             )
             return False
 
-    def apply_style_to_run(self, run, style_name):
+    def apply_style_to_run(self, style_name):
         """
         Apply a Word character style to a run by style name.
 
@@ -175,7 +179,7 @@ class HtmlToDocx(HTMLParser):
             bool: True if style was applied successfully, False otherwise
         """
         try:
-            run.style = style_name
+            self.run.style = style_name
             return True
         except KeyError:
             print(f"Warning: Character style '{style_name}' not found in document.")
@@ -222,7 +226,7 @@ class HtmlToDocx(HTMLParser):
 
         return normal_styles, important_styles
 
-    def apply_inline_styles_to_run(self, run, styles_dict):
+    def apply_inline_styles_to_run(self, styles_dict):
         """
         Apply inline CSS styles to a run.
 
@@ -240,7 +244,7 @@ class HtmlToDocx(HTMLParser):
         if "color" in styles_dict:
             try:
                 colors = utils.parse_color(styles_dict["color"])
-                run.font.color.rgb = RGBColor(*colors)
+                self.run.font.color.rgb = RGBColor(*colors)
             except:
                 pass
 
@@ -249,7 +253,7 @@ class HtmlToDocx(HTMLParser):
             try:
                 font_size = utils.adapt_font_size(styles_dict["font-size"])
                 if font_size:
-                    run.font.size = utils.unit_converter(font_size)
+                    self.run.font.size = utils.unit_converter(font_size)
             except:
                 pass
 
@@ -257,32 +261,32 @@ class HtmlToDocx(HTMLParser):
         if "font-weight" in styles_dict:
             weight = styles_dict["font-weight"].lower()
             if weight in ["bold", "bolder", "700", "800", "900"]:
-                run.font.bold = True
+                self.run.font.bold = True
             elif weight in ["normal", "400"]:
-                run.font.bold = False
+                self.run.font.bold = False
 
         # Apply font-style (italic)
         if "font-style" in styles_dict:
             style = styles_dict["font-style"].lower()
             if style == "italic" or style == "oblique":
-                run.font.italic = True
+                self.run.font.italic = True
             elif style == "normal":
-                run.font.italic = False
+                self.run.font.italic = False
 
         # Apply text-decoration
         if "text-decoration" in styles_dict:
             decoration = styles_dict["text-decoration"].lower()
             if "underline" in decoration:
-                run.font.underline = True
+                self.run.font.underline = True
             if "line-through" in decoration:
-                run.font.strike = True
+                self.run.font.strike = True
 
         # Apply font-family
         if "font-family" in styles_dict:
             font_family = (
                 styles_dict["font-family"].split(",")[0].strip().strip('"').strip("'")
             )
-            run.font.name = font_family
+            self.run.font.name = font_family
 
     def get_cell_html(self, soup):
         """
@@ -709,7 +713,6 @@ class HtmlToDocx(HTMLParser):
                     self.run.add_picture(image, width, height)
                 else:
                     self.add_image_to_cell(self.doc, image, width, height)
-                image.close()
             except FileNotFoundError:
                 image = None
 
@@ -719,6 +722,9 @@ class HtmlToDocx(HTMLParser):
             else:
                 # avoid exposing filepaths in document
                 self.doc.add_paragraph("<image: %s>" % utils.get_filename_from_url(src))
+
+        if os.path.exists(src):
+            image.close()
 
         """
         #adding style
@@ -975,21 +981,15 @@ class HtmlToDocx(HTMLParser):
                 self.run = self.paragraph.add_run()
                 self.run.add_break()
             return
-        elif tag == "code":
-            custom_style = self.get_word_style_for_element(tag, current_attrs)
-            if custom_style:
-                self.pending_character_style = custom_style
-            if "style" in current_attrs:
-                normal_styles, important_styles = self.parse_inline_styles(
-                    current_attrs["style"]
-                )
-                if normal_styles:
-                    self.pending_inline_styles = normal_styles
-                if important_styles:
-                    self.pending_important_styles = important_styles
 
         self.tags[tag] = current_attrs
-        custom_style = self.get_word_style_for_element(tag, current_attrs)
+
+        # Control custom_style based on the Options.  Default is False on both.
+        custom_style = (
+            self.get_word_style_for_element(tag, current_attrs)
+            if (self.use_styles or self.use_tag_overrides)
+            else None
+        )
 
         if tag in ["p", "pre"]:
             if not self.in_li:
@@ -1016,6 +1016,7 @@ class HtmlToDocx(HTMLParser):
                     self.pending_important_styles = important_styles
 
         elif tag == "div":
+
             # FIXED: Don't create empty paragraph for styled divs
             # Instead, track the style and apply it to child paragraphs
             if custom_style and not self.in_li:
@@ -1058,6 +1059,19 @@ class HtmlToDocx(HTMLParser):
             if self.include_tables:
                 self.handle_table(current_attrs)
                 return
+
+        elif tag == "code":
+            if custom_style:
+                self.pending_character_style = custom_style
+            if "style" in current_attrs:
+                normal_styles, important_styles = self.parse_inline_styles(
+                    current_attrs["style"]
+                )
+                if normal_styles:
+                    self.pending_inline_styles = normal_styles
+                if important_styles:
+                    self.pending_important_styles = important_styles
+            return
 
         if "id" in current_attrs:
             self.add_bookmark(current_attrs["id"])
@@ -1185,15 +1199,15 @@ class HtmlToDocx(HTMLParser):
 
         # Apply pending character style from CSS class mapping (priority 2)
         if self.pending_character_style:
-            self.apply_style_to_run(self.run, self.pending_character_style)
+            self.apply_style_to_run(self.pending_character_style)
 
         # Apply normal inline CSS styles (priority 3)
         if self.pending_inline_styles:
-            self.apply_inline_styles_to_run(self.run, self.pending_inline_styles)
+            self.apply_inline_styles_to_run(self.pending_inline_styles)
 
         # Apply !important inline CSS styles (priority 4 - highest)
         if self.pending_important_styles:
-            self.apply_inline_styles_to_run(self.run, self.pending_important_styles)
+            self.apply_inline_styles_to_run(self.pending_important_styles)
 
     def ignore_nested_tables(self, tables_soup):
         """
