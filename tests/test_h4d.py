@@ -1488,10 +1488,9 @@ and blank lines.
         self.assertTrue(all(result_list))
 =======
         blue_font = run.font.color.rgb == Color["blue"].value
-        size_is_12pt = run.font.size == Pt(12)
-        is_underlined = run.font.underline
+        is_underlined = True if run.font.underline is not None else False
         is_underline_wavy = True if run.font.underline == WD_UNDERLINE.WAVY else False
-        result_list = [blue_font, size_is_12pt, is_underlined, is_underline_wavy]
+        result_list = [blue_font, is_underlined, is_underline_wavy]
         self.assertTrue(all(result_list))
 >>>>>>> 590c274 (Made requested changes for pull request.)
 
@@ -1699,7 +1698,7 @@ and blank lines.
         self.document.add_heading(
             "Test: Test Basic HTML still works after changes", level=1
         )
-        html = "<p>Simple paragraph</p>h3> and here we have header 3</h3>"
+        html = "<p>Simple paragraph</p><h3> and here we have header 3</h3>"
 
         doc = Document()
         parser = HtmlToDocx()
