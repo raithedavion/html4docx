@@ -3,7 +3,7 @@ from io import BytesIO
 from pathlib import Path
 import unittest
 from docx import Document
-from docx.shared import Pt, RGBColor
+from docx.shared import Pt
 from docx.oxml.ns import qn
 from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_UNDERLINE
 from html4docx import HtmlToDocx
@@ -1526,9 +1526,8 @@ and blank lines.
         size_is_12pt = run.font.size == Pt(11)
         is_not_underlined = run.font.underline is not True
         is_not_underline_wavy = True if run.font.underline is not True else False
-        self.assertTrue(
-            all(black_font, size_is_12pt, is_not_underlined, is_not_underline_wavy)
-        )
+        results = [black_font, size_is_12pt, is_not_underlined, is_not_underline_wavy]
+        self.assertTrue(all(results))
 
     def test_paragraph_inline_styles(self):
         """Test inline styles on paragraph elements"""
@@ -1655,7 +1654,7 @@ and blank lines.
         self.document.add_heading(
             "Test: Test Basic HTML still works after changes", level=1
         )
-        html = "<p>Simple paragraph</p><code> and here we have code</code>"
+        html = "<p>Simple paragraph</p>h3> and here we have header 3</h3>"
 
         doc = Document()
         parser = HtmlToDocx()
@@ -1663,7 +1662,7 @@ and blank lines.
         parser.add_html_to_document(html, doc)
 
         self.assertEqual(len(doc.paragraphs), 2)
-        self.assertEqual(doc.paragraphs[1].style.name, "Heading 1")
+        self.assertEqual(doc.paragraphs[1].style.name, "Heading 3")
 
     def test_existing_span_styles_work(self):
         """Test that existing <span style="..."> still works"""
