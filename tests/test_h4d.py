@@ -1491,7 +1491,8 @@ and blank lines.
         size_is_12pt = run.font.size == Pt(12)
         is_underlined = run.font.underline
         is_underline_wavy = True if run.font.underline == WD_UNDERLINE.WAVY else False
-        self.assertTrue(all(blue_font, size_is_12pt, is_underlined, is_underline_wavy))
+        result_list = [blue_font, size_is_12pt, is_underlined, is_underline_wavy]
+        self.assertTrue(all(result_list))
 >>>>>>> 590c274 (Made requested changes for pull request.)
 
     def test_fontweight_none(self):
