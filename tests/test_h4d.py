@@ -3,9 +3,9 @@ from io import BytesIO
 from pathlib import Path
 import unittest
 from docx import Document
-from docx.shared import Pt
+from docx.shared import Pt, RGBColor
 from docx.oxml.ns import qn
-from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_UNDERLINE
 from html4docx import HtmlToDocx
 from html4docx.utils import unit_converter
 from html4docx.colors import Color
@@ -1312,7 +1312,7 @@ and blank lines.
         """Test that CSS classes are mapped to Word styles"""
         self.document.add_heading("Test: Test Basic Class Mapping", level=1)
         style_map = {
-            "custom-style": "Heading 1",
+            "custom-style": "Quote",
         }
 
         html = '<p class="custom-style">Test paragraph</p>'
@@ -1332,8 +1332,8 @@ and blank lines.
             "Test: Test that first matching class in style_map wins", level=1
         )
         style_map = {
-            "first": "Heading 1",
-            "second": "Heading 2",
+            "first": "Heading 2",
+            "second": "Heading 3",
         }
 
         html = '<p class="second first">Test</p>'
@@ -1445,37 +1445,10 @@ and blank lines.
 
         self.assertEqual(doc.paragraphs[0].style.name, "Normal")
 
-    def test_inline_color(self):
-        """Test inline color style"""
-        html = '<p><span style="color: red">Red text</span></p>'
-        self.document.add_heading("Test: Test Inline color", level=1)
-
-        doc = Document()
-        parser = HtmlToDocx()
-        parser.add_html_to_document(html, self.document)
-        parser.add_html_to_document(html, doc)
-
-        # Check that run has color applied
-        run = doc.paragraphs[0].runs[0]
-        self.assertIsNotNone(run.font.color.rgb)
-
-    def test_inline_font_size(self):
-        """Test inline font-size style"""
-        html = '<p><span style="font-size: 18pt">Large text</span></p>'
-        self.document.add_heading("Test: Test inline font size", level=1)
-
-        doc = Document()
-        parser = HtmlToDocx()
-        parser.add_html_to_document(html, self.document)
-        parser.add_html_to_document(html, doc)
-
-        run = doc.paragraphs[0].runs[0]
-        self.assertEqual(run.font.size, Pt(18))
-
-    def test_inline_bold(self):
-        """Test inline font-weight bold"""
+    def test_fontweight_bold(self):
+        """Test font-weight bold"""
         html = '<p><span style="font-weight: bold">Bold text</span></p>'
-        self.document.add_heading("Test: Test inline bold", level=1)
+        self.document.add_heading("Test: Test Font-Weight bold", level=1)
 
         doc = Document()
         parser = HtmlToDocx()
@@ -1485,10 +1458,10 @@ and blank lines.
         run = doc.paragraphs[0].runs[0]
         self.assertTrue(run.font.bold)
 
-    def test_inline_italic(self):
-        """Test inline font-style italic"""
+    def test_fontstyle_italic(self):
+        """Test font-style italic"""
         html = '<p><span style="font-style: italic">Italic text</span></p>'
-        self.document.add_heading("Test: Test inline italics", level=1)
+        self.document.add_heading("Test: Test Font-Style italics", level=1)
 
         doc = Document()
         parser = HtmlToDocx()
@@ -1497,6 +1470,70 @@ and blank lines.
 
         run = doc.paragraphs[0].runs[0]
         self.assertTrue(run.font.italic)
+
+    def test_textdecoration(self):
+        """Test text-decoration"""
+        # 16px = 12pt
+        html = '<p><span style="text-decoration: underline wavy blue 16px">An underlined, blue wavy text.</span></p>'
+        self.document.add_heading("Test: Test Text-Decoration", level=1)
+
+        doc = Document()
+        parser = HtmlToDocx()
+        parser.add_html_to_document(html, self.document)
+        parser.add_html_to_document(html, doc)
+
+        run = doc.paragraphs[0].runs[0]
+        blue_font = run.font.color.rgb == Color["blue"].value
+        size_is_12pt = run.font.size == Pt(12)
+        is_underlined = run.font.underline
+        is_underline_wavy = True if run.font.underline == WD_UNDERLINE.WAVY else False
+        self.assertTrue(all(blue_font, size_is_12pt, is_underlined, is_underline_wavy))
+
+    def test_fontweight_none(self):
+        """Test None as font-weight Value"""
+        html = '<p><span style="font-weight: None">Regular text</span></p>'
+        self.document.add_heading("Test: Test font-weight as None", level=1)
+
+        doc = Document()
+        parser = HtmlToDocx()
+        parser.add_html_to_document(html, self.document)
+        parser.add_html_to_document(html, doc)
+
+        run = doc.paragraphs[0].runs[0]
+        self.assertTrue(run.font.bold is not True)
+
+    def test_fontstyle_none(self):
+        """Test font-style italic"""
+        html = '<p><span style="font-style: none">Italic text</span></p>'
+        self.document.add_heading("Test: Test font-style None", level=1)
+
+        doc = Document()
+        parser = HtmlToDocx()
+        parser.add_html_to_document(html, self.document)
+        parser.add_html_to_document(html, doc)
+
+        run = doc.paragraphs[0].runs[0]
+        self.assertTrue(run.font.italic is not True)
+
+    def test_textdecoration(self):
+        """Test text-decoration as None"""
+        # 16px = 12pt
+        html = '<p><span style="text-decoration: none">An regular boring text with no decorations...</span></p>'
+        self.document.add_heading("Test: Test Text-Decoration None", level=1)
+
+        doc = Document()
+        parser = HtmlToDocx()
+        parser.add_html_to_document(html, self.document)
+        parser.add_html_to_document(html, doc)
+
+        run = doc.paragraphs[0].runs[0]
+        black_font = run.font.color.rgb == Color["black"].value
+        size_is_12pt = run.font.size == Pt(11)
+        is_not_underlined = run.font.underline is not True
+        is_not_underline_wavy = True if run.font.underline is not True else False
+        self.assertTrue(
+            all(black_font, size_is_12pt, is_not_underlined, is_not_underline_wavy)
+        )
 
     def test_paragraph_inline_styles(self):
         """Test inline styles on paragraph elements"""
@@ -1530,8 +1567,29 @@ and blank lines.
 
         # The "red important" run should have red color
         # (exact run index may vary based on whitespace handling)
-        runs = doc.paragraphs[0].runs
-        self.assertTrue(len(runs) > 0)
+        run = doc.paragraphs[0].runs[0]
+        self.assertEqual(run.font.color.rgb, Color["red"].value)
+
+    def test_important_conflict_last_wins(self):
+        """Test conflict when both styles have !important"""
+        self.document.add_heading("Test: Test Last !important override", level=1)
+        html = """
+        <p>
+            <span style="color: BLUE !important">
+                Blue text with <span style="color: red !important">red important</span>.
+            </span>
+        </p>
+        """
+
+        doc = Document()
+        parser = HtmlToDocx()
+        parser.add_html_to_document(html, self.document)
+        parser.add_html_to_document(html, doc)
+
+        # The "red important" run should have red color
+        # (exact run index may vary based on whitespace handling)
+        run = doc.paragraphs[0].runs[0]
+        self.assertEqual(run.font.color.rgb, Color["red"].value)
 
     def test_important_on_paragraph(self):
         """Test !important on paragraph inline style"""
@@ -1584,9 +1642,9 @@ and blank lines.
         }
 
         html = """
-        <h1 class="numbered-heading-1">1.0 Introduction</h1>
-        <h2 class="numbered-heading-2">1.1 Overview</h2>
-        <h3 class="numbered-heading-3">1.1.1 Details</h3>
+        <h1 class="numbered-heading-1" style="color: red">1.0 Introduction</h1>
+        <h2 class="numbered-heading-2" style="color: red">1.1 Overview</h2>
+        <h3 class="numbered-heading-3" style="color: red">1.1.1 Details</h3>
         """
 
         doc = Document()
@@ -1604,7 +1662,7 @@ and blank lines.
         self.document.add_heading(
             "Test: Test Basic HTML still works after changes", level=1
         )
-        html = "<p>Simple paragraph</p><h1>Heading</h1>"
+        html = "<p>Simple paragraph</p><code> and here we have code</code>"
 
         doc = Document()
         parser = HtmlToDocx()
