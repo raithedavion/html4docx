@@ -7,7 +7,7 @@ from html.parser import HTMLParser
 import docx
 from bs4 import BeautifulSoup
 from docx import Document
-from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_UNDERLINE
 from docx.enum.table import WD_ALIGN_VERTICAL
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
@@ -278,11 +278,31 @@ class HtmlToDocx(HTMLParser):
 
         # Apply text-decoration
         if "text-decoration" in styles_dict:
-            decoration = styles_dict["text-decoration"].lower()
-            if "underline" in decoration:
+            decoration = utils.parse_text_decoration(styles_dict["text-decoration"])
+            # line types
+            if "underline" in decoration["line"]:
                 self.run.font.underline = True
-            if "line-through" in decoration:
+            if "line-through" in decoration["line"]:
                 self.run.font.strike = True
+            if "overline" in decoration["line"]:
+                # python-docx doesn't support overline directly
+                pass
+
+            # style (python-docx supports limited underline styles)
+            if decoration["style"] in {"wavy", "double", "dotted", "dashed"}:
+                self.run.font.underline = True  # ensure underline on
+                if decoration["style"] == "wavy":
+                    self.run.font.underline = WD_UNDERLINE.WAVY
+                if decoration["style"] == "double":
+                    self.run.font.underline = WD_UNDERLINE.DOUBLE
+                if decoration["style"] == "dotted":
+                    self.run.font.underline = WD_UNDERLINE.DOTTED
+                if decoration["style"] == "dashed":
+                    self.run.font.underline = WD_UNDERLINE.DASH
+
+            if decoration["color"]:
+                colors = utils.parse_color(decoration["color"])
+                self.run.font.color.rgb = RGBColor(*colors)
 
         # Apply font-family
         if "font-family" in styles_dict:
