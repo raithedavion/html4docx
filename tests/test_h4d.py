@@ -1319,12 +1319,11 @@ and blank lines.
 
         doc = Document()
         parser = HtmlToDocx(style_map=style_map)
-        parser.options["style-map"] = True
         parser.add_html_to_document(html, self.document)
         parser.add_html_to_document(html, doc)
 
         # Verify paragraph uses the mapped style
-        self.assertEqual(doc.paragraphs[0].style.name, "Heading 1")
+        self.assertEqual(doc.paragraphs[0].style.name, "Quote")
 
     def test_multiple_classes(self):
         """Test that first matching class in style_map wins"""
@@ -1340,12 +1339,11 @@ and blank lines.
 
         doc = Document()
         parser = HtmlToDocx(style_map=style_map)
-        parser.options["style-map"] = True
         parser.add_html_to_document(html, self.document)
         parser.add_html_to_document(html, doc)
 
         # Should use first matching class found
-        self.assertIn(doc.paragraphs[0].style.name, ["Heading 1", "Heading 2"])
+        self.assertIn(doc.paragraphs[0].style.name, ["Heading 2", "Heading 3"])
 
     def test_unmapped_class_uses_default(self):
         """Test that unmapped classes fall back to default behavior"""
@@ -1360,7 +1358,6 @@ and blank lines.
 
         doc = Document()
         parser = HtmlToDocx(style_map=style_map, default_paragraph_style=None)
-        parser.options["style-map"] = True
         parser.add_html_to_document(html, self.document)
         parser.add_html_to_document(html, doc)
 
@@ -1487,7 +1484,8 @@ and blank lines.
         size_is_12pt = run.font.size == Pt(12)
         is_underlined = run.font.underline
         is_underline_wavy = True if run.font.underline == WD_UNDERLINE.WAVY else False
-        self.assertTrue(all(blue_font, size_is_12pt, is_underlined, is_underline_wavy))
+        result_list = [blue_font, size_is_12pt, is_underlined, is_underline_wavy]
+        self.assertTrue(all(result_list))
 
     def test_fontweight_none(self):
         """Test None as font-weight Value"""
@@ -1623,7 +1621,6 @@ and blank lines.
 
         doc = Document()
         parser = HtmlToDocx(style_map=style_map)
-        parser.options["style-map"] = True
         parser.add_html_to_document(html, self.document)
         parser.add_html_to_document(html, doc)
 
@@ -1649,7 +1646,6 @@ and blank lines.
 
         doc = Document()
         parser = HtmlToDocx(style_map=style_map)
-        parser.options["style-map"] = True
         parser.add_html_to_document(html, self.document)
         parser.add_html_to_document(html, doc)
 
@@ -1722,7 +1718,6 @@ and blank lines.
         html = '<p class="custom">Test</p>'
 
         parser = HtmlToDocx(style_map=style_map)
-        parser.options["style-map"] = True
 
         # Should not raise exception
         try:
@@ -1740,7 +1735,6 @@ and blank lines.
 
         doc = Document()
         parser = HtmlToDocx(style_map={})
-        parser.options["style-map"] = True
         parser.add_html_to_document(html, self.document)
         parser.add_html_to_document(html, doc)
 
@@ -1754,7 +1748,6 @@ and blank lines.
 
         doc = Document()
         parser = HtmlToDocx(style_map=None)
-        parser.options["style-map"] = True
         parser.add_html_to_document(html, self.document)
         parser.add_html_to_document(html, doc)
 
