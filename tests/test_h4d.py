@@ -3,7 +3,7 @@ from io import BytesIO
 from pathlib import Path
 import unittest
 from docx import Document
-from docx.shared import Pt, RGBColor
+from docx.shared import Pt
 from docx.oxml.ns import qn
 from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_UNDERLINE
 from html4docx import HtmlToDocx
@@ -1699,11 +1699,7 @@ and blank lines.
         self.document.add_heading(
             "Test: Test Basic HTML still works after changes", level=1
         )
-<<<<<<< HEAD
-        html = "<p>Simple paragraph</p><h3> and here we have header 3</h3>"
-=======
-        html = "<p>Simple paragraph</p><code> and here we have code</code>"
->>>>>>> 590c274 (Made requested changes for pull request.)
+        html = "<p>Simple paragraph</p>h3> and here we have header 3</h3>"
 
         doc = Document()
         parser = HtmlToDocx()
