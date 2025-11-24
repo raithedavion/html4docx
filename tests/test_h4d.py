@@ -3,7 +3,7 @@ from io import BytesIO
 from pathlib import Path
 import unittest
 from docx import Document
-from docx.shared import Pt
+from docx.shared import Pt, RGBColor
 from docx.oxml.ns import qn
 from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_UNDERLINE
 from html4docx import HtmlToDocx
@@ -1477,6 +1477,7 @@ and blank lines.
         parser.add_html_to_document(html, doc)
 
         run = doc.paragraphs[0].runs[0]
+<<<<<<< HEAD
 
         # Note, python-docx doesn't allow direct control of underline thickness.
 
@@ -1485,6 +1486,13 @@ and blank lines.
         is_underline_wavy = True if run.font.underline == WD_UNDERLINE.WAVY else False
         result_list = [blue_font, is_underlined, is_underline_wavy]
         self.assertTrue(all(result_list))
+=======
+        blue_font = run.font.color.rgb == Color["blue"].value
+        size_is_12pt = run.font.size == Pt(12)
+        is_underlined = run.font.underline
+        is_underline_wavy = True if run.font.underline == WD_UNDERLINE.WAVY else False
+        self.assertTrue(all(blue_font, size_is_12pt, is_underlined, is_underline_wavy))
+>>>>>>> 590c274 (Made requested changes for pull request.)
 
     def test_fontweight_none(self):
         """Test None as font-weight Value"""
@@ -1512,10 +1520,17 @@ and blank lines.
         run = doc.paragraphs[0].runs[0]
         self.assertTrue(run.font.italic is not True)
 
+<<<<<<< HEAD
     def test_textdecoration_none(self):
         """Test text-decoration as None"""
         # 16px = 12pt
         html = '<p><span style="text-decoration: none;">An regular boring text with no decorations...</span></p>'
+=======
+    def test_textdecoration(self):
+        """Test text-decoration as None"""
+        # 16px = 12pt
+        html = '<p><span style="text-decoration: none">An regular boring text with no decorations...</span></p>'
+>>>>>>> 590c274 (Made requested changes for pull request.)
         self.document.add_heading("Test: Test Text-Decoration None", level=1)
 
         doc = Document()
@@ -1525,11 +1540,20 @@ and blank lines.
 
         run = doc.paragraphs[0].runs[0]
         black_font = run.font.color.rgb == Color["black"].value
+<<<<<<< HEAD
         is_not_underlined = True if run.font.underline is None else True
         is_not_underline_wavy = True if run.font.underline is None else False
         results = [black_font, is_not_underlined, is_not_underline_wavy]
         print(results)
         self.assertTrue(all(results))
+=======
+        size_is_12pt = run.font.size == Pt(11)
+        is_not_underlined = run.font.underline is not True
+        is_not_underline_wavy = True if run.font.underline is not True else False
+        self.assertTrue(
+            all(black_font, size_is_12pt, is_not_underlined, is_not_underline_wavy)
+        )
+>>>>>>> 590c274 (Made requested changes for pull request.)
 
     def test_paragraph_inline_styles(self):
         """Test inline styles on paragraph elements"""
@@ -1563,8 +1587,12 @@ and blank lines.
 
         # The "red important" run should have red color
         # (exact run index may vary based on whitespace handling)
+<<<<<<< HEAD
         run = doc.paragraphs[0].runs[2]
         self.assertIsNotNone(run.font.color.rgb)
+=======
+        run = doc.paragraphs[0].runs[0]
+>>>>>>> 590c274 (Made requested changes for pull request.)
         self.assertEqual(run.font.color.rgb, Color["red"].value)
 
     def test_important_conflict_last_wins(self):
@@ -1583,6 +1611,7 @@ and blank lines.
         parser.add_html_to_document(html, self.document)
         parser.add_html_to_document(html, doc)
 
+<<<<<<< HEAD
         # HTML creates 6 "runs" due to the style breaks/changes.  Opening <p> = 0, blue span opener = 1, red important = 2, ending period outside of "red" span = 3, then closing span and p tags are 4 & 5 respectively.
         blue_run = doc.paragraphs[0].runs[1]
         red_run = doc.paragraphs[0].runs[2]
@@ -1592,6 +1621,12 @@ and blank lines.
 
         self.assertIsNotNone(red_run.font.color.rgb)
         self.assertEqual(red_run.font.color.rgb, Color["red"].value)
+=======
+        # The "red important" run should have red color
+        # (exact run index may vary based on whitespace handling)
+        run = doc.paragraphs[0].runs[0]
+        self.assertEqual(run.font.color.rgb, Color["red"].value)
+>>>>>>> 590c274 (Made requested changes for pull request.)
 
     def test_important_on_paragraph(self):
         """Test !important on paragraph inline style"""
@@ -1663,7 +1698,11 @@ and blank lines.
         self.document.add_heading(
             "Test: Test Basic HTML still works after changes", level=1
         )
+<<<<<<< HEAD
         html = "<p>Simple paragraph</p><h3> and here we have header 3</h3>"
+=======
+        html = "<p>Simple paragraph</p><code> and here we have code</code>"
+>>>>>>> 590c274 (Made requested changes for pull request.)
 
         doc = Document()
         parser = HtmlToDocx()

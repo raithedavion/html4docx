@@ -274,6 +274,7 @@ def check_style_exists(document, style_name):
         return style_name in document.styles
     except Exception:
         return False
+<<<<<<< HEAD
 
 
 def parse_text_decoration(value: str):
@@ -312,3 +313,5 @@ def parse_text_decoration(value: str):
             result["thickness"] = token
 
     return result
+=======
+>>>>>>> 590c274 (Made requested changes for pull request.)
