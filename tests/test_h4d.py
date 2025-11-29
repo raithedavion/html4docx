@@ -5,7 +5,9 @@ import unittest
 from docx import Document
 from docx.shared import Pt
 from docx.shared import Pt
+from docx.shared import Pt
 from docx.oxml.ns import qn
+from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_UNDERLINE
 from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_UNDERLINE
 from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_UNDERLINE
 from html4docx import HtmlToDocx
