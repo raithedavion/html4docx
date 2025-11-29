@@ -66,6 +66,10 @@ class HtmlToDocx(HTMLParser):
         self.use_styles = (
             False if self.options["styles"] is False else self.options["style-map"]
         )
+<<<<<<< HEAD
+        self.use_styles = self.options["style-map"]
+=======
+>>>>>>> 590c274 (Made requested changes for pull request.)
         self.use_tag_overrides = self.options["tag-override"]
         # NEW: Style tracking variables
         self.pending_div_style = None
